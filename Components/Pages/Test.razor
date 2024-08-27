@@ -1,0 +1,43 @@
+@page "/Test3"
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Game.Table;
+@using PaintedPoker.Game.Rules;
+@using PaintedPoker.Components.Game.Table;
+@rendermode InteractiveServer
+
+<MudSnackbarProvider />
+<MudThemeProvider IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+
+@inject IDialogService DialogService
+
+<GameTable Table="table" />
+<MudButton Color="Color.Success" OnClick="OpenDialog">Click me!</MudButton>
+
+@code {
+    public Table<IGameResult> table = null!;
+
+    public void OpenDialog() {
+        DialogService.ShowAsync<CreateGameDialog>("Create Game", new DialogOptions() { CloseButton = true });
+    }
+
+    protected override void OnInitialized()
+    {
+        var table = new Table<IGameResult>(3);
+
+        var row = table.NewRow();
+        row[0] = new DefaultRoundResult(1, 2);
+        row[1] = new DefaultRoundResult(1, 2);
+        row[2] = new DefaultRoundResult(1, 2);
+        table.Rows.Add(row);
+
+        row = table.NewRow();
+        row[0] = new PartialResult(1);
+        row[1] = EmptyResult.instance;
+        row[2] = EmptyResult.instance;
+        table.Rows.Add(row);
+
+        this.table = table;
+    }
+} 

@@ -1,0 +1,22 @@
+@using PaintedPoker.Game.Rules
+@using PaintedPoker.Game.Services
+@using PaintedPoker.Game.Table
+@using PaintedPoker.Components.Game.Table
+
+@inject GameTableService Tables
+
+@attribute [Route(Nav.Games + "/{id}")]
+
+<GameTable Table="Table" />
+
+@code {
+    [Parameter]
+    public required string Id { get; set; }
+
+    public Table<IGameResult> Table { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Table = Tables.GetTable(new GameName(Id));
+    }
+}

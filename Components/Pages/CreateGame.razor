@@ -1,0 +1,38 @@
+@page "/"
+@page "/create-game"
+
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Game
+@using System.Text.Json
+@using PaintedPoker.Game.Rules
+@using PaintedPoker.Game.Services
+@using PaintedPoker.Game.Table
+
+@rendermode InteractiveServer
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject GameTableService Tables
+@inject NavigationManager NavigationManager
+
+<MudPaper Class="my-3 p-2">
+    <MudText>Press button to create new game.</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleCreate">Create</MudButton>
+</MudPaper>
+
+@code {
+    public async void HandleCreate()
+    {
+        var dialog = await DialogService.ShowAsync<CreateGameDialog>("Create New Game");
+
+        var res = await dialog.Result;
+
+        if (res is null || res.Canceled || res.Data is null) return;
+
+        var data = (GameInfo)res.Data;
+
+        Tables.Add(data.GameName, new Table<IGameResult>(data.GameOptions.PlayerCount));
+
+        NavigationManager.NavigateTo(Nav.Game(data.GameName));
+    }
+}

@@ -1,0 +1,69 @@
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Game.Rules;
+@using PaintedPoker.Game.Table;
+@inject ISnackbar Snakbar;
+@inject IDialogService DialogService;
+@rendermode InteractiveServer
+
+<MudTable Items="Table.Rows">
+    <HeaderContent>
+        <MudTr>
+            @for (int col = 0; col < Table.ColumnCount; col++)
+            {
+                <MudTh>Player №@col</MudTh>
+            }
+        </MudTr>
+    </HeaderContent>
+    <RowTemplate>
+       @for(int col = 0; col < Table.ColumnCount; col++) {
+            <MudTd>
+                <MudButton>
+                    @context[col]
+                </MudButton>
+            </MudTd>
+       }
+    </RowTemplate>
+    <FooterContent>
+
+    </FooterContent>
+</MudTable>
+
+@code {
+    [Parameter]
+    public required Table<IGameResult> Table { get; set; }
+
+    public void HandleCellClick(IGameResult result)
+    {
+        result.Accept(new CellClickActions(DialogService, Snakbar));
+    }
+
+    private class CellClickActions(IDialogService dialogService, ISnackbar snackbar) : IGameResultVisitor<Task>
+    {
+        public Task VisitDefaultResult(DefaultRoundResult result)
+        {
+            snackbar.Add("Cell is already configured", Severity.Info);
+            return Task.CompletedTask;
+        }
+
+        public async Task VisitEmptyResult(EmptyResult result)
+        {
+            var res = await dialogService.Show<NumberInput>("Enter stake").Result;
+            int? stake = (int)res!.Data!;
+
+            snackbar.Add($"Stake set, {stake}", Severity.Warning);
+        }
+
+        public async Task VisitPartialResult(PartialResult result)
+        {
+            var res = await dialogService.Show<NumberInput>("Enter wins").Result;
+
+            if (res is null) return;
+
+            if (res.Canceled) return;
+
+            int stake = (int)res!.Data!;
+
+            snackbar.Add($"Wins set, {stake}", Severity.Warning);
+        }
+    }
+}
