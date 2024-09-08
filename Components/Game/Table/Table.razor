@@ -1,0 +1,89 @@
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Game.Rules;
+@using PaintedPoker.Game.Table;
+@inject ISnackbar Snakbar;
+@inject IDialogService DialogService;
+@rendermode InteractiveServer
+
+<MudTable Items="GameTable.Rows">
+    <HeaderContent>
+        <MudTh>Round</MudTh>
+        @foreach (var header in GameTable.Headers)
+        {
+            <MudTh>@header.DisplayName</MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudText>Name: @context.Header.DisplayName</MudText>
+        </MudTd>
+
+        @for (int col = 0; col < GameTable.ColumnCount; col++)
+        {
+            var _col = col;
+            <MudTd>
+                <MudButton OnClick="() => HandleCellClick(context[_col])">
+                    @context[_col].GameResult.Accept(new ResultStringFormatter())
+                </MudButton>
+            </MudTd>
+        }
+    </RowTemplate>
+    <FooterContent>
+        <MudTd>
+            Results
+        </MudTd>
+        @for (int col = 0; col < GameTable.ColumnCount; col++)
+        {
+            var _col = col;
+            <MudTd>
+                Points: @GameTable.Rows.Sum(x => Calculator.Calculate(x[_col].GameResult))
+            </MudTd>
+        }
+    </FooterContent>
+</MudTable>
+
+@code {
+    [Parameter]
+    public required GameTable<CellMetadata, HeaderMetadata, HeaderMetadata> GameTable { get; set; }
+
+    public IPointsCalculator Calculator = new DefaultPointsCalculator();
+
+    public async void HandleCellClick(CellMetadata result)
+    {
+        result.GameResult = await result.GameResult.Accept(new CellClickActions(DialogService, Snakbar));
+        StateHasChanged();
+    }
+
+    private class CellClickActions(IDialogService dialogService, ISnackbar snackbar) : IGameResultVisitor<Task<IGameResult>>
+    {
+        public Task<IGameResult> VisitDefaultResult(DefaultRoundResult result)
+        {
+            snackbar.Add("Cell is already configured", Severity.Info);
+            return Task.FromResult(result as IGameResult);
+        }
+
+        public async Task<IGameResult> VisitEmptyResult(EmptyResult result)
+        {
+            var res = await dialogService.Show<NumberInput>("Enter stake").Result;
+            int? stake = (int)res!.Data!;
+
+            if (stake is null)
+            {
+                return result;
+            }
+
+            return new PartialResult(stake.Value);
+        }
+
+        public async Task<IGameResult> VisitPartialResult(PartialResult result)
+        {
+            var res = await dialogService.Show<NumberInput>("Enter wins").Result;
+
+            if (res is null || res.Canceled) return result;
+
+            int wins = (int)res!.Data!;
+
+            return new DefaultRoundResult(result.stakes, wins);
+        }
+    }
+}
