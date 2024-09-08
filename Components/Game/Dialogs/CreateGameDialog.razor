@@ -7,9 +7,9 @@
             @bind-Value="GameName" style="margin-bottom: 10px;" MaxLength="MAX_GAME_NAME_LENGTH" />
         <MudNumericField Label="Player Count" @bind-Value="PlayerCount" Min="MIN_PLAYER_COUNT" Max="MAX_PLAYER_COUNT"
             style="margin-bottom: 10px;" />
-        <MudRadioGroup T="DeckSize">
-            <MudRadio T="DeckSize" Option="DeckSize.Large">Big Card Deck</MudRadio>
-            <MudRadio T="DeckSize" Option="DeckSize.Small">Small Card Deck</MudRadio>
+        <MudRadioGroup T="DeckInfo">
+            <MudRadio T="DeckInfo" Option="DeckInfo.Large">Big Card Deck</MudRadio>
+            <MudRadio T="DeckInfo" Option="DeckSize.Small">Small Card Deck</MudRadio>
         </MudRadioGroup>
     </DialogContent>
     <DialogActions>
@@ -23,12 +23,12 @@
     private const int MIN_PLAYER_COUNT = 2;
     private const int MAX_GAME_NAME_LENGTH = 40;
 
-    private bool Disabled => GameName.Length <= 4;
+    private bool Disabled => GameName.Length <= 1;
 
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
-    private DeckSize DeckSize { get; set; } = DeckSize.Large;
+    private DeckInfo DeckInfo { get; set; } = DeckInfo.Large;
     private string GameName { get; set; } = "";
     private int _player_count = MIN_PLAYER_COUNT;
     private int PlayerCount
@@ -44,7 +44,7 @@
             new GameName(GameName),
             new GameOptions()
                 {
-                    DeckSize = DeckSize,
+                    DeckInfo = DeckInfo,
                     PlayerCount = PlayerCount
                 })
             )
