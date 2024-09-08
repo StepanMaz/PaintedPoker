@@ -1,9 +1,8 @@
-@page "/"
-@page "/create-game"
-
+@attribute [Route(Nav.CreateGame), Route("")]
 @using PaintedPoker.Components.Game.Dialogs
 @using PaintedPoker.Game
 @using System.Text.Json
+@using PaintedPoker.Game.Builder
 @using PaintedPoker.Game.Rules
 @using PaintedPoker.Game.Services
 @using PaintedPoker.Game.Table
@@ -31,7 +30,7 @@
 
         var data = (GameInfo)res.Data;
 
-        Tables.Add(data.GameName, new Table<IGameResult>(data.GameOptions.PlayerCount));
+        Tables.Add(data.GameName, new GameBuilder().Build(data.GameOptions));
 
         NavigationManager.NavigateTo(Nav.Game(data.GameName));
     }
