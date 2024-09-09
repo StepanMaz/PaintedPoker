@@ -11,7 +11,7 @@
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject GameTableService Tables
+@inject GameService Tables
 @inject NavigationManager NavigationManager
 
 <MudPaper Class="my-3 p-2">
@@ -28,10 +28,12 @@
 
         if (res is null || res.Canceled || res.Data is null) return;
 
-        var data = (GameInfo)res.Data;
+        var data = (ValueTuple<string, GameBuilder>)res.Data;
 
-        Tables.Add(data.GameName, new GameBuilder().Build(data.GameOptions));
+        var gameName = new GameName(data.Item1);
 
-        NavigationManager.NavigateTo(Nav.Game(data.GameName));
+        Tables.Add(gameName, data.Item2.Build());
+
+        NavigationManager.NavigateTo(Nav.Game(gameName));
     }
 }

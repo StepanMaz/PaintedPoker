@@ -1,28 +1,107 @@
 using PaintedPoker.Game.Rules;
-using PaintedPoker.Game.Table;
-
+using TableType = PaintedPoker.Game.Table.GameTable<CellMetadata, HeaderMetadata, HeaderMetadata>;
 namespace PaintedPoker.Game.Builder;
+
+public class Game(TableType gameTable)
+{
+    public TableType GameTable => gameTable;
+
+#nullable disable
+    public event Action TableChanged;
+
+    public void NotifyTableChanged()
+    {
+        TableChanged?.Invoke();
+    }
+}
 
 public class GameBuilder
 {
-    public GameTable<CellMetadata, HeaderMetadata, HeaderMetadata> Build(GameOptions gameOptions)
+    public int MinPlayerCount => 2;
+    public int MaxPlayerCount => DeckInfo.TotalCardsCount;
+    public int PlayerCount { get; set; } = 2;
+    public DeckInfo DeckInfo { get; set; } = DeckInfo.Small;
+    public bool UseRound_NoTrumpCards { get; set; } = true;
+    public bool UseRound_BlindStakes { get; set; } = true;
+    public bool UseRound_NegativeWins { get; set; } = true;
+    public bool UseRound_NoStakes { get; set; } = true;
+
+    public Game Build()
     {
-        var headers = Enumerable.Range(0, gameOptions.PlayerCount).Select(index => new HeaderMetadata($"Player {index}"));
+        return new Game(CreateTable());
+    }
 
-        var table = new GameTable<CellMetadata, HeaderMetadata, HeaderMetadata>(headers);
+    private TableType CreateTable()
+    {
+        var headers = Enumerable.Range(0, PlayerCount).Select(index => new HeaderMetadata($"Player {index}"));
 
-        foreach (var round_size in GenerateRoundSizes(gameOptions.PlayerCount, gameOptions.DeckInfo))
+        var table = new TableType(headers);
+
+        foreach (var round_size in GenerateRoundSizes(PlayerCount, DeckInfo))
         {
             var row = table.NewRow();
             for (int i = 0; i < row.Count; i++)
             {
-                row[i] = new CellMetadata(EmptyResult.instance);
+                row[i] = new CellMetadata(new DefaultResult.Empty());
             }
 
-            row.Header = new HeaderMetadata($"Round {round_size}");
+            row.Header = new HeaderMetadata($"round {round_size}");
 
             table.Rows.Add(row);
         }
+
+        if (UseRound_NoTrumpCards)
+        {
+            var row = table.NewRow();
+            for (int i = 0; i < row.Count; i++)
+            {
+                row[i] = new CellMetadata(new DefaultResult.Empty());
+            }
+
+            row.Header = new HeaderMetadata($"no trump cards");
+
+            table.Rows.Add(row);
+        }
+
+        if (UseRound_BlindStakes)
+        {
+            var row = table.NewRow();
+            for (int i = 0; i < row.Count; i++)
+            {
+                row[i] = new CellMetadata(new DefaultResult.Empty());
+            }
+
+            row.Header = new HeaderMetadata($"blind stakes");
+
+            table.Rows.Add(row);
+        }
+
+        if (UseRound_NegativeWins)
+        {
+            var row = table.NewRow();
+            for (int i = 0; i < row.Count; i++)
+            {
+                row[i] = new CellMetadata(new NegativeRound.Empty());
+            }
+
+            row.Header = new HeaderMetadata($"wins loses");
+
+            table.Rows.Add(row);
+        }
+
+        if (UseRound_NoStakes)
+        {
+            var row = table.NewRow();
+            for (int i = 0; i < row.Count; i++)
+            {
+                row[i] = new CellMetadata(new WinsOnlyRoundResult.Empty());
+            }
+
+            row.Header = new HeaderMetadata($"no stakes");
+
+            table.Rows.Add(row);
+        }
+
         return table;
     }
 
