@@ -1,18 +1,47 @@
 namespace PaintedPoker.Game.Rules;
 
-public record struct EmptyResult : IGameResult
+public record struct Stakes(int value)
 {
-    public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.VisitEmptyResult(this);
-    public static readonly EmptyResult instance = new();
+    public override string ToString() => value.ToString();
 }
 
-public record struct PartialResult(int stakes) : IGameResult
+public record struct Wins(int value)
 {
-    public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.VisitPartialResult(this);
+    public override string ToString() => value.ToString();
 }
 
-public record struct DefaultRoundResult(int stakes, int wins) : IGameResult
+public record DefaultResult(Stakes Stakes, Wins Wins) : IGameResult
 {
-    public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.VisitDefaultResult(this);
+    public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
 
+    public record Partial(Stakes Stakes) : IGameResult
+    {
+        public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
+    }
+
+    public record Empty : IGameResult
+    {
+        public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
+    }
+}
+
+public record WinsOnlyRoundResult(Wins Wins) : IGameResult
+{
+    public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
+
+
+    public record Empty() : IGameResult
+    {
+        public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
+    }
+}
+
+public record NegativeRound(Wins Wins) : IGameResult
+{
+    public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
+
+    public record Empty() : IGameResult
+    {
+        public T Accept<T>(IGameResultVisitor<T> visitor) => visitor.Visit(this);
+    }
 }

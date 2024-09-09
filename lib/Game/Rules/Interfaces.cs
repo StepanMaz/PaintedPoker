@@ -5,9 +5,13 @@ public interface IGameResult {
 }
 
 public interface IGameResultVisitor<T> {
-    public T VisitDefaultResult(DefaultRoundResult result);
-    public T VisitPartialResult(PartialResult result);
-    public T VisitEmptyResult(EmptyResult result);
+    public T Visit(DefaultResult result);
+    public T Visit(DefaultResult.Partial result);
+    public T Visit(DefaultResult.Empty result);
+    public T Visit(WinsOnlyRoundResult result);
+    public T Visit(WinsOnlyRoundResult.Empty result);
+    public T Visit(NegativeRound result);
+    public T Visit(NegativeRound.Empty result);
 }
 
 public interface IPointsCalculator {

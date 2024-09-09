@@ -16,35 +16,44 @@ public class DefaultPointsCalculator : IPointsCalculator
         return gameResult.Accept(new ResultsVisitor());
     }
 
-    private static int CalculateDefaultResult(DefaultRoundResult result)
+    private static int GetWinsPoints(Wins wins)
     {
-        var (stakes, wins) = result;
-
-        if (stakes < wins) return wins;
-
-        if (wins < stakes) return (stakes - wins) * -10;
-
-        if (wins == 0) return 5;
-
-        return wins * 10;
+        return wins.value * 10;
     }
 
-    private class ResultsVisitor : IGameResultVisitor<int>
+    private static int GetLossPoints(int difference)
     {
-        public int VisitDefaultResult(DefaultRoundResult result)
+        return Math.Abs(difference) * -10;
+    }
+
+    private static int CalculateDefaultResult(Wins wins, Stakes stakes)
+    {
+        int _wins = wins.value, _stakes = stakes.value;
+
+        if (_stakes < _wins) return _wins;
+
+        if (_wins < _stakes) return GetLossPoints(_stakes - _wins);
+
+        if (wins.value == 0) return 0;
+
+        return GetWinsPoints(wins);
+    }
+
+    private class ResultsVisitor : BaseVisitor<int>
+    {
+        public override int Visit(DefaultResult result)
         {
-            return CalculateDefaultResult(result);
+            return CalculateDefaultResult(result.Wins, result.Stakes);
         }
 
-
-        public int VisitPartialResult(PartialResult result)
+        public override int Visit(NegativeRound result)
         {
-            return 0;
+            return GetLossPoints(result.Wins.value);
         }
 
-        public int VisitEmptyResult(EmptyResult result)
+        public override int Visit(WinsOnlyRoundResult result)
         {
-            return 0;
+            return GetWinsPoints(result.Wins);
         }
     }
 }
