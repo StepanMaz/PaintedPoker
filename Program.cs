@@ -5,7 +5,7 @@ using PaintedPoker.Game.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<GameTableService>();
+builder.Services.AddSingleton<GameService>();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
