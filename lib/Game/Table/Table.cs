@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace PaintedPoker.Game.Table;
 
 public interface IRow<TCell>
@@ -25,7 +23,7 @@ public abstract class TableWithHeader<TCell, TRow, THeader> : Table<TCell, TRow>
         Headers = headers.ToList();
     }
 
-    public IReadOnlyList<THeader> Headers { get; set; }
+    public IList<THeader> Headers { get; set; }
 }
 
 public class GameTable<TCell, TPlayer, TRowHeader> : TableWithHeader<TCell, RowWithHeader<TCell, TRowHeader>, TPlayer>
