@@ -1,0 +1,12 @@
+@page "/Test"
+@using PaintedPoker.Components.Game.Cards;
+@using PaintedPoker.Game.Deck
+
+<PPGCardThemeProvider />
+
+<div class="flex gap-3">
+    @for (int i = 2; i < (int)Rank.Ace; i++)
+    {
+        <PPGCard Card="new Card(Suit.Spades, (Rank)i)"/>
+    }
+</div>
