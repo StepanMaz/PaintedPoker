@@ -1,0 +1,45 @@
+@using PaintedPoker.Entities
+@using PaintedPoker.Game
+
+@code {
+    [Parameter]
+    public required ICollection<Player> Players { get; set; }
+
+    [Parameter]
+    public required ICollection<RoundDef> Rounds { get; set; }
+}
+
+<MudTable Items="Rounds">
+    <HeaderContent>
+        <MudTh>
+            Round
+        </MudTh>
+        @foreach (var player in Players)
+        {
+            <MudTh>
+                @player.Name
+            </MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Round.Accept(RoundFormatter.Instance)</MudTd>
+        @foreach (var player in Players)
+        {
+            <MudTd>
+                @{
+                    RoundResult result;
+                    var hasResult = @context.Results.TryGetValue(player, out result);
+                }
+
+                @if (hasResult)
+                {
+                    @context.Results[player].Accept(ResultFormatter.Instance)
+                }
+                else
+                {
+                    <span>  /  </span>
+                }
+            </MudTd>
+        }
+    </RowTemplate>
+</MudTable>

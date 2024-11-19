@@ -1,14 +1,33 @@
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using MudBlazor;
 using MudBlazor.Services;
 using PaintedPoker.Components;
-using PaintedPoker.Game.Services;
+using PaintedPoker.Configuration;
+using PaintedPoker.Services;
+
+MongoDBConfiguration.ConfigurePolymorphism();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<GameService>();
-
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
+
+builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
+
+builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddSingleton<IMongoClient>(services =>
+{
+    var settings = services.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddScoped(services =>
+{
+    var settings = services.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    var client = services.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(settings.DatabaseName);
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

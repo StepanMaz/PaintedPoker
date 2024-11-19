@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\App\PaintedPoker.csproj" />
+    <ProjectReference Include="..\PaintedPokerLib\PaintedPokerLib.fsproj" />
   </ItemGroup>
 
 </Project>

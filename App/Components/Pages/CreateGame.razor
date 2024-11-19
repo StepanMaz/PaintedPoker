@@ -1,39 +1,82 @@
-@attribute [Route(Nav.CreateGame), Route("")]
-@using PaintedPoker.Components.Game.Dialogs
+@using Dumpify
+@using PaintedPoker.Entities
 @using PaintedPoker.Game
-@using System.Text.Json
-@using PaintedPoker.Game.Builder
-@using PaintedPoker.Game.Rules
-@using PaintedPoker.Game.Services
-@using PaintedPoker.Game.Table
+@using PaintedPoker.Services
+@using PaintedPokerLib.Deck
+@using PaintedPokerLib.Game
+@using static PaintedPokerLib.Game.Round
+@attribute [Route(Nav.CreateGame), Route(Nav.Index)]
+@inject IGameService gameService
+@inject NavigationManager Navigation
 
-@rendermode InteractiveServer
-
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
-@inject GameService Tables
-@inject NavigationManager NavigationManager
-
-<MudPaper Class="my-3 p-2">
-    <MudText>Press button to create new game.</MudText>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleCreate">Create</MudButton>
-</MudPaper>
+<div class="m-4 flex flex-col gap-1">
+    <MudPaper class="p-4">
+        <div class="text-center">
+            <MudText>Create New Game</MudText>
+        </div>
+        <MudForm @ref=form @bind-IsValid=success @bind-bind-Errors=errors class="gap-2">
+            <MudTextField @bind-Value=gameName Label="Game Name" Required=true
+                RequiredError="Game name should be provided"
+                Validation="@(new Func<string, IEnumerable<string>>(ValidateGameName))" />
+            <MudNumericField @bind-Value=playerCount Label="Player Count" Min=2 Required=true />
+            <MudCheckBox @bind-Value=include_NoTrumpCardRound Label="@("Include \"No Trump Card\" round")" />
+            <MudCheckBox @bind-Value=include_WinLosesRound Label="@("Include \"Win Loses\" round")" />
+            <MudCheckBox @bind-Value=include_BlindStakesRound Label="@("Include \"Blind Stakes\" round")" />
+            <MudCheckBox @bind-Value=include_NoStakesRound Label="@("Include \"No Stakes\" round")" />
+        </MudForm>
+    </MudPaper>
+    <MudPaper class="p-4">
+        <MudButton Variant=Variant.Filled Color=Color.Primary Disabled=@(!success) OnClick=Submit>Create</MudButton>
+    </MudPaper>
+</div>
 
 @code {
-    public async void HandleCreate()
+    bool success = false;
+    MudForm form = null!;
+    string[] errors = [];
+
+    #region Form fields
+    bool include_NoTrumpCardRound = true,
+    include_WinLosesRound = true,
+    include_BlindStakesRound = true,
+    include_NoStakesRound = true;
+    int playerCount = 2;
+    string gameName = "";
+    #endregion
+
+    public async void Submit()
     {
-        var dialog = await DialogService.ShowAsync<CreateGameDialog>("Create New Game");
+        var builder = new GameBuilder();
+        var game = builder
+        .SetName(gameName)
+        .SetPlayers(Enumerable.Range(0, playerCount).Select(x => new Player()
+            {
+                Name = $"Player {x}",
+                Id = Guid.NewGuid()
+            }))
+        .SetDeckSize(DeckSize.Large)
+        .SetRounds(c =>
+        c.IncludeBlindStakesRound(include_BlindStakesRound)
+        .IncludeNoStakesRound(include_NoStakesRound)
+        .IncludeNoTrumpCardRound(include_NoTrumpCardRound)
+        .IncludeWinLosesRound(include_WinLosesRound)
+        ).Build();
 
-        var res = await dialog.Result;
+        await gameService.AddGame(game);
 
-        if (res is null || res.Canceled || res.Data is null) return;
+        Navigation.NavigateTo(Nav.Game(gameName));
+    }
 
-        var data = (ValueTuple<string, GameBuilder>)res.Data;
-
-        var gameName = new GameName(data.Item1);
-
-        Tables.Add(gameName, data.Item2.Build());
-
-        NavigationManager.NavigateTo(Nav.Game(gameName));
+    IEnumerable<string> ValidateGameName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            yield return "Game name is required";
+            yield break;
+        }
+        if (name.Length < 4)
+            yield return "Game name must be at least of length 4";
+        if (name.Length > 20)
+            yield return "Game name must be no longer than of length 20";
     }
 }

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PaintedPokerLib", "PaintedPokerLib\PaintedPokerLib.fsproj", "{AE370C9C-F693-4D6B-A93A-C510B581FA8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{33888A5C-2200-453B-9BC0-28C3EFB39821}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaintedPoker", "App\PaintedPoker.csproj", "{114D9CC7-6F26-4593-9E4F-F647885CE04D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE370C9C-F693-4D6B-A93A-C510B581FA8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE370C9C-F693-4D6B-A93A-C510B581FA8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE370C9C-F693-4D6B-A93A-C510B581FA8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE370C9C-F693-4D6B-A93A-C510B581FA8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33888A5C-2200-453B-9BC0-28C3EFB39821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33888A5C-2200-453B-9BC0-28C3EFB39821}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33888A5C-2200-453B-9BC0-28C3EFB39821}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33888A5C-2200-453B-9BC0-28C3EFB39821}.Release|Any CPU.Build.0 = Release|Any CPU
+		{114D9CC7-6F26-4593-9E4F-F647885CE04D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{114D9CC7-6F26-4593-9E4F-F647885CE04D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{114D9CC7-6F26-4593-9E4F-F647885CE04D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{114D9CC7-6F26-4593-9E4F-F647885CE04D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

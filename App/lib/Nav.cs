@@ -1,8 +1,7 @@
-using PaintedPoker.Game.Services;
-
 public static class Nav
 {
-    public const string CreateGame = "createGame";
+    public const string CreateGame = "/create-game";
+    public const string Index = "/";
     public const string Games = "games";
-    public static string Game(GameName gameName) => string.Concat(Games, "/", gameName.FormattedName);
+    public static string Game(string gameName) => string.Concat(Games, "/", gameName);
 }
