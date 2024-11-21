@@ -1,3 +1,4 @@
+@using Dumpify
 @using PaintedPoker.Components.Game.Dialogs
 @using PaintedPoker.Entities
 @using PaintedPoker.Game
@@ -51,9 +52,19 @@
         HandleChanges();
     }
 
-    public void HandleChanges() {
+    public void HandleChanges()
+    {
         OnChange?.Invoke();
         StateHasChanged();
+    }
+
+    public Action<RoundResult?> EditRes(RoundDef round, Player player)
+    {
+        return (res) =>
+        {
+            round.Results[player] = res;
+            HandleChanges();
+        };
     }
 }
 
@@ -85,14 +96,7 @@
                         var hasResult = @context.Results.TryGetValue(player, out result);
                     }
 
-                    @if (hasResult)
-                    {
-                        @context.Results[player].Accept(ResultFormatter.Instance)
-                    }
-                    else
-                    {
-                        <span> / </span>
-                    }
+                    <Cell Result=@result Round=@context.Round OnChange="EditRes(context, player)"/>
                 </MudTd>
             }
         </RowTemplate>
