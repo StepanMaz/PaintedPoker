@@ -10,6 +10,7 @@ interface ICalculator
 
 public class PointsCalculator : IResultVisitor<int>, ICalculator
 {
+    public static readonly PointsCalculator Instance = new PointsCalculator();
     public int? Calculate(Result result)
     {
         return result.Accept(this);
@@ -20,7 +21,7 @@ public class PointsCalculator : IResultVisitor<int>, ICalculator
         if (wins > stakes) return wins;
         if (wins == stakes) return GetPoints(wins);
 
-        return (stakes - wins) * 10;
+        return (wins - stakes) * 10;
     }
 
     private int GetPoints(int wins) {

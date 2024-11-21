@@ -15,7 +15,8 @@ builder.Logging.AddConsole();
 
 builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
 
-builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IGameService, TrackingGameService>();
+builder.Services.AddSingleton<IGameCache, GameCache>();
 builder.Services.AddSingleton<IMongoClient>(services =>
 {
     var settings = services.GetRequiredService<IOptions<MongoDBSettings>>().Value;

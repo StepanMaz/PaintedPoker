@@ -1,7 +1,7 @@
 namespace PaintedPokerLib.Game
 
 open System.Collections.Generic
-open System
+open System.Linq
 open Results
 open System.Threading.Tasks
 
@@ -29,13 +29,10 @@ type RoundRunner<'TPlayer when 'TPlayer: equality>(playersApi: IPlayersApi<'TPla
                         |> dict
                     )
 
-                let roundRes =
-                    stakes
-                    |> Seq.map (fun (KeyValue (k, v)) -> (k, (v, 0)))
-                    |> dict
+                let roundRes = stakes.ToDictionary((fun k -> k.Key), (fun v -> (v.Value, 0)))
 
-                for _ = 0 to round.CardCount do
-                    let turnRes = turnRunner.PlayTurn(playersApi)
+                for i = 1 to round.CardCount do
+                    let! turnRes = turnRunner.PlayTurn(playersApi, { TurnIndex = i })
                     let (stakes, wins) = roundRes[turnRes.Winner]
                     roundRes[turnRes.Winner] <- (stakes, wins + 1)
 
@@ -64,13 +61,10 @@ type RoundRunner<'TPlayer when 'TPlayer: equality>(playersApi: IPlayersApi<'TPla
                         |> dict
                     )
 
-                let roundRes =
-                    stakes
-                    |> Seq.map (fun (KeyValue (k, v)) -> (k, (v, 0)))
-                    |> dict
+                let roundRes = stakes.ToDictionary((fun k -> k.Key), (fun v -> (v.Value, 0)))
 
-                for _ = 0 to round.CardCount do
-                    let turnRes = turnRunner.PlayTurn(playersApi)
+                for i = 1 to round.CardCount do
+                    let! turnRes = turnRunner.PlayTurn(playersApi, { TurnIndex = i })
                     let (stakes, wins) = roundRes[turnRes.Winner]
                     roundRes[turnRes.Winner] <- (stakes, wins + 1)
 
@@ -99,13 +93,10 @@ type RoundRunner<'TPlayer when 'TPlayer: equality>(playersApi: IPlayersApi<'TPla
                           ShowTrumpCard = false }
                     )
 
-                let roundRes =
-                    stakes
-                    |> Seq.map (fun (KeyValue (k, v)) -> (k, (v, 0)))
-                    |> dict
+                let roundRes = stakes.ToDictionary((fun k -> k.Key), (fun v -> (v.Value, 0)))
 
-                for _ = 0 to round.CardCount do
-                    let turnRes = turnRunner.PlayTurn(playersApi)
+                for i = 1 to round.CardCount do
+                    let! turnRes = turnRunner.PlayTurn(playersApi, { TurnIndex = i })
                     let (stakes, wins) = roundRes[turnRes.Winner]
                     roundRes[turnRes.Winner] <- (stakes, wins + 1)
 
@@ -127,9 +118,13 @@ type RoundRunner<'TPlayer when 'TPlayer: equality>(playersApi: IPlayersApi<'TPla
 
                 let roundRes = Dictionary()
 
-                for _ = 0 to round.CardCount do
-                    let turnRes = turnRunner.PlayTurn(playersApi)
-                    roundRes[turnRes.Winner] <- roundRes[turnRes.Winner] + 1
+                for i = 1 to round.CardCount do
+                    let! turnRes = turnRunner.PlayTurn(playersApi, { TurnIndex = i })
+
+                    roundRes[turnRes.Winner] <- if roundRes.ContainsKey(turnRes.Winner) then
+                                                    roundRes[turnRes.Winner] + 1
+                                                else
+                                                    1
 
                 return
                     { Results =
@@ -148,9 +143,12 @@ type RoundRunner<'TPlayer when 'TPlayer: equality>(playersApi: IPlayersApi<'TPla
 
                 let roundRes = Dictionary()
 
-                for _ = 0 to round.CardCount do
-                    let turnRes = turnRunner.PlayTurn(playersApi)
-                    roundRes[turnRes.Winner] <- roundRes[turnRes.Winner] + 1
+                for i = 1 to round.CardCount do
+                    let! turnRes = turnRunner.PlayTurn(playersApi, { TurnIndex = i })
+                    roundRes[turnRes.Winner] <- if roundRes.ContainsKey(turnRes.Winner) then
+                                                    roundRes[turnRes.Winner] + 1
+                                                else
+                                                    1
 
                 return
                     { Results =

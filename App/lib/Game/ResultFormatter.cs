@@ -20,7 +20,7 @@ public class ResultFormatter : IResultVisitor<string>
 
     public string Visit(NoStakesRoundResult result) => Format(UNSET, result.Wins);
 
-    public string Visit(WinLosesRoundResult result) => Format(UNSET, result.Wins);
+    public string Visit(WinLosesRoundResult result) => Format(UNSET, -result.Wins);
 
     public string Visit(BlindStakesRoundResult result) => Format(result.Stakes, result.Wins);
 

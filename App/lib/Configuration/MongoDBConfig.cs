@@ -30,6 +30,7 @@ public static class MongoDBConfiguration
       BsonClassMap.RegisterClassMap<Results.NoTrumpCardRoundResult>(cm => cm.AutoMap());
       BsonClassMap.RegisterClassMap<Results.BlindStakesRoundResult>(cm => cm.AutoMap());
       BsonClassMap.RegisterClassMap<Results.WinLosesRoundResult>(cm => cm.AutoMap());
+      BsonClassMap.RegisterClassMap<Results.PartialResult>(cm => cm.AutoMap());
 
       BsonClassMap.RegisterClassMap<Round.RoundBase>(cm =>
       {

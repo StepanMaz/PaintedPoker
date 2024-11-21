@@ -1,0 +1,23 @@
+@using PaintedPoker.Entities
+
+<MudDialog>
+    <DialogContent>
+        @foreach (var player in Players)
+        {
+            <MudButton @onclick="()=>SelectPlayer(player)">@player.Name</MudButton>
+        }
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public required ICollection<Player> Players { get; set; }
+
+    void SelectPlayer(Player player)
+    {
+        MudDialog.Close(DialogResult.Ok(player));
+    }
+}

@@ -15,6 +15,12 @@ public class GameData
     public required DeckSize DeckSize { get; set; }
     public required ICollection<RoundDef> Rounds { get; set; }
     public required ICollection<Player> Players { get; set; }
+
+    public event Func<GameData, Task> OnChange;
+
+    public Task NotifySelf() {
+        return OnChange?.Invoke(this);
+    }
 }
 
 public class RoundDef

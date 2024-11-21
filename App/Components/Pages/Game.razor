@@ -1,10 +1,15 @@
+@using Dumpify
 @using PaintedPoker.Components.Game
 @using PaintedPoker.Entities
 @using PaintedPoker.Services
+@using PaintedPokerLib.Game
 
 @attribute [Route(Nav.Games + "/{name}")]
 @rendermode InteractiveServer
 @inject IGameService gameService
+@inject IGameCache gameCache
+
+@implements IDisposable
 
 @code {
     [Parameter]
@@ -14,14 +19,32 @@
 
     protected override async Task OnInitializedAsync()
     {
-        GameData = await gameService.GetGameByName(Name);
+        GameData = await gameCache.Get(Name) ?? await gameService.GetGameByName(Name);
+
+        if (GameData is not null)
+        {
+            await gameCache.Set(GameData);
+            GameData.OnChange += HandleChanges;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (GameData is null) return;
+        GameData.OnChange -= HandleChanges;
+    }
+
+    public async Task HandleChanges(GameData gameData)
+    {
+        GameData = gameData;
+        await InvokeAsync(StateHasChanged);
     }
 }
 
 @if (GameData is not null)
 {
     <p>Game: @Name</p>
-    <Table Players=GameData.Players Rounds=GameData.Rounds/>
+    <Table Players=GameData.Players Rounds=GameData.Rounds OnChange="() => GameData.NotifySelf()"/>
 }
 else
 {

@@ -1,12 +1,14 @@
-@using Dumpify
 @using PaintedPoker.Entities
 @using PaintedPoker.Game
 @using PaintedPoker.Services
 @using PaintedPokerLib.Deck
 @using PaintedPokerLib.Game
+
 @using static PaintedPokerLib.Game.Round
+
 @attribute [Route(Nav.CreateGame), Route(Nav.Index)]
 @inject IGameService gameService
+@inject IGameCache gameCache
 @inject NavigationManager Navigation
 
 <div class="m-4 flex flex-col gap-1">
@@ -56,13 +58,14 @@
             }))
         .SetDeckSize(DeckSize.Large)
         .SetRounds(c =>
-        c.IncludeBlindStakesRound(include_BlindStakesRound)
-        .IncludeNoStakesRound(include_NoStakesRound)
-        .IncludeNoTrumpCardRound(include_NoTrumpCardRound)
-        .IncludeWinLosesRound(include_WinLosesRound)
+            c.IncludeBlindStakesRound(include_BlindStakesRound)
+             .IncludeNoStakesRound   (include_NoStakesRound)
+             .IncludeNoTrumpCardRound(include_NoTrumpCardRound)
+             .IncludeWinLosesRound   (include_WinLosesRound)
         ).Build();
 
         await gameService.AddGame(game);
+        await gameCache.Set(game);
 
         Navigation.NavigateTo(Nav.Game(gameName));
     }
