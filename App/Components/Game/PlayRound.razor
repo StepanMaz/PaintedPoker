@@ -1,5 +1,7 @@
 @using PaintedPoker.Components.Game.Dialogs
 @using PaintedPoker.Entities
+@using PaintedPoker.Game
+@using PaintedPoker.Utils
 @using PaintedPokerLib.Game
 
 @inject ISnackbar Snackbar
@@ -36,7 +38,8 @@
     {
         var options = new DialogOptions { CloseButton = false };
 
-        var parameters = new DialogParameters<GetStakesDialog> { { sp => sp.Players, Players } };
+        var parameters = new DialogParameters<GetStakesDialog> { { sp => sp.Players, Players }, { sp => sp.Values,
+GetPlayerStakes() } };
 
         var dialogRes = await DialogService.ShowAsync<GetStakesDialog>("Set player stakes", parameters, options);
 
@@ -47,6 +50,17 @@
         var stakes = (IDictionary<Player, int>)result.Data!;
 
         return stakes;
+    }
+
+    public PlayerCollection<int> GetPlayerStakes()
+    {
+        var values = new PlayerCollection<int>();
+        foreach (var (id, res) in Round.Results)
+        {
+            var (stakes, _) = res.Normalize();
+            if (stakes is not null) values[id] = stakes.Value;
+        }
+        return values;
     }
 
     public Task ReportStakes(IDictionary<Player, RoundResult> value)
