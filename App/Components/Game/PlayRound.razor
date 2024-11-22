@@ -30,8 +30,6 @@
 
         Snackbar.Add($"Please, deal cards to players. Cards count: {value.PerPlayerCardCount}, {_temp}include trump card ",
         Severity.Info, c => c.SnackbarVariant = Variant.Filled);
-
-        await Task.Delay(1000);
     }
 
     public async Task<IDictionary<Player, int>> GetStakes()
