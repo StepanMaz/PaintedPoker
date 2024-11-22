@@ -8,11 +8,11 @@ interface ICalculator
     int? Calculate(Result result);
 }
 
-public class PointsCalculator : IResultVisitor<int>, ICalculator
+public class PointsCalculator : IResultVisitor<int?>, ICalculator
 {
     public int? Calculate(Result? result)
     {
-        if(result is null) return null;
+        if (result is null) return null;
         return result.Accept(this);
     }
 
@@ -24,45 +24,48 @@ public class PointsCalculator : IResultVisitor<int>, ICalculator
         return (wins - stakes) * 10;
     }
 
-    private int GetPoints(int wins) {
-        if(wins == 0) return 5;
+    private int GetPoints(int wins)
+    {
+        if (wins == 0) return 5;
         return wins * 10;
     }
 
-    int IResultVisitor<int>.Visit(DefaultRoundResult result)
+    int? IResultVisitor<int?>.Visit(DefaultRoundResult result)
     {
         return GetPoints(result.Stakes, result.Wins);
     }
 
-    int IResultVisitor<int>.Visit(NoTrumpCardRoundResult result)
+    int? IResultVisitor<int?>.Visit(NoTrumpCardRoundResult result)
     {
         return GetPoints(result.Stakes, result.Wins);
     }
 
-    int IResultVisitor<int>.Visit(NoStakesRoundResult result)
+    int? IResultVisitor<int?>.Visit(NoStakesRoundResult result)
     {
-        return GetPoints(result.Wins); 
+        return GetPoints(result.Wins);
     }
 
-    int IResultVisitor<int>.Visit(WinLosesRoundResult result)
+    int? IResultVisitor<int?>.Visit(WinLosesRoundResult result)
     {
-        return -GetPoints(result.Wins); 
+        return -GetPoints(result.Wins);
     }
 
-    int IResultVisitor<int>.Visit(BlindStakesRoundResult result)
+    int? IResultVisitor<int?>.Visit(BlindStakesRoundResult result)
     {
         return GetPoints(result.Stakes, result.Wins);
     }
 
-    public int Visit(PartialResult result)
+    int? IResultVisitor<int?>.Visit(PartialResult result)
     {
         return 0;
     }
 }
 
-public static class PointsCalculatorExtensions {
-    private static PointsCalculator calc = new ();
-    public static int? GetPoints(this Result result) {
+public static class PointsCalculatorExtensions
+{
+    private static PointsCalculator calc = new();
+    public static int? GetPoints(this Result result)
+    {
         return calc.Calculate(result);
     }
 }
