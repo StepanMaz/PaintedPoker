@@ -1,11 +1,12 @@
 @using PaintedPoker.Entities
+@using PaintedPoker.Utils
 <MudDialog>
     <DialogContent>
         @foreach (var player in Players)
         {
             <MudItem>
                 <MudText Typo="Typo.h6">@player.Name</MudText>
-                <MudNumericField @bind-Value=_stakes[player] Min="0" />
+                <MudNumericField @bind-Value=Values[player] Min="0" />
             </MudItem>
         }
     </DialogContent>
@@ -21,20 +22,20 @@
     [Parameter, EditorRequired]
     public required ICollection<Player> Players { get; set; }
 
-    private Dictionary<Player, int> _stakes = null!;
+    [Parameter]
+    public PlayerCollection<int> Values { get; set; } = new PlayerCollection<int>();
 
     protected override void OnInitialized()
     {
-        _stakes = new Dictionary<Player, int>();
-
         foreach (var player in Players)
         {
-            _stakes[player] = 0;
+            if (!Values.ContainsKey(player))
+                Values[player] = 0;
         }
     }
 
     private void Submit()
     {
-        MudDialog.Close(DialogResult.Ok(_stakes));
+        MudDialog.Close(DialogResult.Ok(Values));
     }
 }
