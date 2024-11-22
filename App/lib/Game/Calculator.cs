@@ -11,8 +11,9 @@ interface ICalculator
 public class PointsCalculator : IResultVisitor<int>, ICalculator
 {
     public static readonly PointsCalculator Instance = new PointsCalculator();
-    public int? Calculate(Result result)
+    public int? Calculate(Result? result)
     {
+        if(result is null) return null;
         return result.Accept(this);
     }
 
