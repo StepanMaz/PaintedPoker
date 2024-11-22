@@ -52,13 +52,15 @@ GetPlayerStakes() } };
         return stakes;
     }
 
-    public PlayerCollection<int> GetPlayerStakes()
+    public IDictionary<Player, int> GetPlayerStakes()
     {
-        var values = new PlayerCollection<int>();
-        foreach (var (id, res) in Round.Results)
+        var values = new Dictionary<Player, int>();
+        foreach (var player in Players)
         {
+            if (!Round.Results.ContainsKey(player)) continue;
+            var res = Round.Results[player];
             var (stakes, _) = res.Normalize();
-            if (stakes is not null) values[id] = stakes.Value;
+            if (stakes is not null) values[player] = stakes.Value;
         }
         return values;
     }

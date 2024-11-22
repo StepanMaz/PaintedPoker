@@ -9,9 +9,9 @@
     <DialogContent>
         @if (Config.ShowStakes)
         {
-            <MudTextField Class="my-4" Label="Stakes" @bind-Value=Config.Stakes />
+            <MudNumericField Class="my-4" Label="Stakes" @bind-Value=Config.Stakes Min="0"/>
         }
-        <MudTextField Label="Wins" @bind-Value=Config.Wins />
+        <MudNumericField Label="Wins" @bind-Value=Config.Wins Min="0"/>
     </DialogContent>
     <DialogActions>
         <MudButton @onclick=Submit>Submit</MudButton>

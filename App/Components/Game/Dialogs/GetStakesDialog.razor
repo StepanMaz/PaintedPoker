@@ -23,7 +23,7 @@
     public required ICollection<Player> Players { get; set; }
 
     [Parameter]
-    public PlayerCollection<int> Values { get; set; } = new PlayerCollection<int>();
+    public IDictionary<Player, int> Values { get; set; } = new Dictionary<Player, int>();
 
     protected override void OnInitialized()
     {
