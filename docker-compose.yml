@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5245:5000"
+    volumes:
+      - ./App:/app
+    working_dir: /app
+    environment:
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+    depends_on:
+      - mongo
+
   mongo:
     image: mongo:6.0
     container_name: paintedpokermongodb
