@@ -3,15 +3,13 @@ using static PaintedPokerLib.Game.Results;
 
 namespace PaintedPoker.Game;
 
-public class ResultFormatter : IResultVisitor<string>
+public class ResultFormatter(string format) : IResultVisitor<string>
 {
-    public static readonly ResultFormatter Instance = new ResultFormatter();
-    const string FORMAT = "{1} / {0}";
     const string UNSET = "-";
 
     string Format(object stakes, object wins)
     {
-        return string.Format(FORMAT, stakes, wins);
+        return string.Format(format, stakes, wins);
     }
 
     public string Visit(DefaultRoundResult result) => Format(result.Stakes, result.Wins);
@@ -25,4 +23,11 @@ public class ResultFormatter : IResultVisitor<string>
     public string Visit(BlindStakesRoundResult result) => Format(result.Stakes, result.Wins);
 
     public string Visit(PartialResult result) => Format(result.Stakes, UNSET);
+}
+
+public static class ResultFormatterExtensions {
+    private static ResultFormatter formatter = new ("{1} / {0}"); 
+    public static string Format(this RoundResult round) {
+        return round.Accept(formatter);
+    }
 }

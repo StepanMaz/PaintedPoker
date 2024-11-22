@@ -10,7 +10,6 @@ interface ICalculator
 
 public class PointsCalculator : IResultVisitor<int>, ICalculator
 {
-    public static readonly PointsCalculator Instance = new PointsCalculator();
     public int? Calculate(Result? result)
     {
         if(result is null) return null;
@@ -58,5 +57,12 @@ public class PointsCalculator : IResultVisitor<int>, ICalculator
     public int Visit(PartialResult result)
     {
         return 0;
+    }
+}
+
+public static class PointsCalculatorExtensions {
+    private static PointsCalculator calc = new ();
+    public static int? GetPoints(this Result result) {
+        return calc.Calculate(result);
     }
 }
