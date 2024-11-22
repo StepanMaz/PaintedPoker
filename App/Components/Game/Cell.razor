@@ -1,0 +1,41 @@
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Game
+@using static PaintedPokerLib.Game.Results
+
+@inject IDialogService DialogService
+
+@code {
+    [Parameter, EditorRequired]
+    public required RoundResult? Result { get; set; }
+
+    [Parameter, EditorRequired]
+    public required RoundBase Round { get; set; }
+
+    [Parameter]
+    public Action<RoundResult?>? OnChange { get; set; }
+
+    public async void Edit() {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters<EditResult> { { er => er.Result, Result }, { er => er.Round, Round }};
+
+        var dialog = await DialogService.ShowAsync<EditResult>("Edit", parameters, options);
+
+        var dialogRes = await dialog.Result;
+
+        if(dialogRes is null || dialogRes.Canceled) return;
+
+        var res = (RoundResult?)dialogRes.Data;
+
+        OnChange?.Invoke(res);
+    }
+}
+
+<MudButton @onclick=Edit>
+    @if(Result is not null) {
+        @Result.Accept(ResultFormatter.Instance)
+    }
+    else {
+       <span>/</span> 
+    }
+</MudButton>

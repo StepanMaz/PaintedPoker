@@ -1,0 +1,25 @@
+<MudDialog>
+    <DialogContent>
+        <MudTextField AutoFocus @bind-Value="text" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit" Color="Color.Success" Variant="Variant.Filled">Submit</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public string BaseText { get; set; } = "";
+
+    private string text = "";
+
+    protected override void OnInitialized()
+    {
+        text = BaseText;
+    }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(text));
+}

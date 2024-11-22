@@ -1,0 +1,153 @@
+@using PaintedPoker.Entities
+@using PaintedPoker.Game
+@using static PaintedPokerLib.Game.Round
+@using static PaintedPokerLib.Game.Results
+
+@implements IRoundVisitor<EditResult.EditConfig>
+
+<MudDialog>
+    <DialogContent>
+        @if (Config.ShowStakes)
+        {
+            <MudTextField Class="my-4" Label="Stakes" @bind-Value=Config.Stakes />
+        }
+        <MudTextField Label="Wins" @bind-Value=Config.Wins />
+    </DialogContent>
+    <DialogActions>
+        <MudButton @onclick=Submit>Submit</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public required RoundResult? Result { get; set; }
+
+    [Parameter]
+    public required RoundBase Round { get; set; }
+
+    public void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(Config.Edit(Config.Stakes, Config.Wins)));
+    }
+
+    private EditConfig Config { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Config = Round.Accept(this);
+    }
+
+    public class EditConfig
+    {
+        public required bool ShowStakes { get; set; }
+        public int? Wins { get; set; }
+        public int? Stakes { get; set; }
+        public required Func<int?, int?, RoundResult?> Edit { get; set; }
+    }
+
+    EditConfig IRoundVisitor<EditConfig>.Visit(DefaultRound round)
+    {
+        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+
+        return new EditConfig
+            {
+                Wins = wins,
+                Stakes = stakes,
+                ShowStakes = true,
+                Edit = EditDefaultRound
+            };
+    }
+
+    private RoundResult? EditDefaultRound(int? stakes, int? wins)
+    {
+        if (stakes is null) return null;
+        if (wins is null) return new PartialResult(stakes.Value);
+
+        return new DefaultRoundResult(stakes.Value, wins.Value);
+    }
+
+    EditConfig IRoundVisitor<EditConfig>.Visit(WinLosesRound round)
+    {
+        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+
+        return new EditConfig
+            {
+                Wins = wins,
+                Stakes = null,
+                ShowStakes = false,
+                Edit = EditWinLosesRound
+            };
+    }
+
+    private RoundResult? EditWinLosesRound(int? stakes, int? wins)
+    {
+        if (wins is null) return null;
+
+        return new WinLosesRoundResult(wins.Value);
+    }
+
+    EditConfig IRoundVisitor<EditConfig>.Visit(BlindStakesRound round)
+    {
+        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+
+        return new EditConfig
+            {
+                Wins = wins,
+                Stakes = stakes,
+                ShowStakes = true,
+                Edit = EditBlindStakesRound
+            };
+    }
+
+    private RoundResult? EditBlindStakesRound(int? stakes, int? wins)
+    {
+        if (stakes is null) return null;
+        if (wins is null) return new PartialResult(stakes.Value);
+
+        return new BlindStakesRoundResult(stakes.Value, wins.Value);
+    }
+
+    EditConfig IRoundVisitor<EditConfig>.Visit(NoStakesRound round)
+    {
+        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+
+        return new EditConfig
+            {
+                Wins = wins,
+                Stakes = null,
+                ShowStakes = false,
+                Edit = EditNoStakesRound
+            };
+    }
+
+    private RoundResult? EditNoStakesRound(int? stakes, int? wins)
+    {
+        if (wins is null) return null;
+
+        return new WinLosesRoundResult(wins.Value);
+    }
+
+    EditConfig IRoundVisitor<EditConfig>.Visit(NoTrumpCardsRound round)
+    {
+        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+
+        return new EditConfig
+            {
+                Wins = wins,
+                Stakes = stakes,
+                ShowStakes = true,
+                Edit = EditNoTrumpCardsRound
+            };
+    }
+
+    private RoundResult? EditNoTrumpCardsRound(int? stakes, int? wins)
+    {
+        if (stakes is null) return null;
+        if (wins is null) return new PartialResult(stakes.Value);
+
+        return new NoTrumpCardRoundResult(stakes.Value, wins.Value);
+    }
+}

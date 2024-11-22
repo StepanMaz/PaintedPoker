@@ -1,0 +1,40 @@
+@using PaintedPoker.Entities
+<MudDialog>
+    <DialogContent>
+        @foreach (var player in Players)
+        {
+            <MudItem>
+                <MudText Typo="Typo.h6">@player.Name</MudText>
+                <MudNumericField @bind-Value=_stakes[player] Min="0" />
+            </MudItem>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit" Color="Color.Success" Variant="Variant.Filled">Submit</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public required ICollection<Player> Players { get; set; }
+
+    private Dictionary<Player, int> _stakes = null!;
+
+    protected override void OnInitialized()
+    {
+        _stakes = new Dictionary<Player, int>();
+
+        foreach (var player in Players)
+        {
+            _stakes[player] = 0;
+        }
+    }
+
+    private void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(_stakes));
+    }
+}

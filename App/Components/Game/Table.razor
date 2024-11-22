@@ -1,0 +1,111 @@
+@using Dumpify
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Entities
+@using PaintedPoker.Game
+@using PaintedPoker.Utils
+@using PaintedPokerLib.Game
+
+@inject IDialogService DialogService
+
+@code {
+    [Parameter]
+    public required ICollection<Player> Players { get; set; }
+
+    [Parameter]
+    public required ICollection<RoundDef> Rounds { get; set; }
+
+    [Parameter]
+    public Action? OnChange { get; set; }
+
+    public PlayerCollection<int> GetPlayersScores()
+    {
+        var scores = new PlayerCollection<int>();
+
+        foreach (var player in Players)
+        {
+            scores[player] = 0;
+            foreach (var round in Rounds)
+            {
+                RoundResult result;
+                var hasRes = round.Results.TryGetValue(player, out result);
+                if (hasRes && result is not null) scores[player] += PointsCalculator.Instance.Calculate(result) ?? 0;
+            }
+        }
+
+        return scores;
+    }
+
+    async void RenamePlayer(Player player)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters<TextInput> { { ti => ti.BaseText, player.Name } };
+        var dialog = await DialogService.ShowAsync<TextInput>("Change name", parameters, options);
+        var res = await dialog.Result;
+
+        if (res is not null && !res.Canceled)
+        {
+            var newName = (string)res.Data!;
+
+            player.Name = newName;
+        }
+
+        HandleChanges();
+    }
+
+    public void HandleChanges()
+    {
+        OnChange?.Invoke();
+        StateHasChanged();
+    }
+
+    public Action<RoundResult?> EditRes(RoundDef round, Player player)
+    {
+        return (res) =>
+        {
+            round.Results[player] = res;
+            HandleChanges();
+        };
+    }
+}
+
+<div>
+    <MudTable Items="Rounds" FixedFooter=true FixedHeader=true Height="90vh" Class="my-5">
+        <HeaderContent>
+            <MudTh>
+                Round
+            </MudTh>
+            @foreach (var player in Players)
+            {
+                <MudTh>
+                    <MudButton @onclick="() => RenamePlayer(player)">
+                        @player.Name
+                    </MudButton>
+                </MudTh>
+            }
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                @context.Round.Accept(RoundFormatter.Instance)
+                <PlayRound OnChange=HandleChanges Round=@context Players=Players />
+            </MudTd>
+            @foreach (var player in Players)
+            {
+                <MudTd>
+                    @{
+                        RoundResult result;
+                        var hasResult = @context.Results.TryGetValue(player, out result);
+                    }
+
+                    <Cell Result=@result Round=@context.Round OnChange="EditRes(context, player)"/>
+                </MudTd>
+            }
+        </RowTemplate>
+        <FooterContent>
+            <MudTd>Scores:</MudTd>
+            @foreach (var score in GetPlayersScores())
+            {
+                <MudTd>@score.Value</MudTd>
+            }
+        </FooterContent>
+    </MudTable>
+</div>

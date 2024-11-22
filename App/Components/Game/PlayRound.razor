@@ -1,0 +1,94 @@
+@using PaintedPoker.Components.Game.Dialogs
+@using PaintedPoker.Entities
+@using PaintedPokerLib.Game
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+@implements IPlayersApi<Player>
+@implements ITurnRunner<Player>
+
+@code {
+    [Parameter]
+    public string ButtonText { get; set; } = "Play";
+
+    [Parameter, EditorRequired]
+    public required RoundDef Round { get; set; }
+
+    [Parameter, EditorRequired]
+    public required ICollection<Player> Players { get; set; }
+
+    [Parameter]
+    public Action? OnChange { get; set; }
+
+    public async Task DealCard(DealCardsConfig value)
+    {
+        var _temp = value.ShowTrumpCard ? "" : "do not ";
+
+        Snackbar.Add($"Please, deal cards to players. Cards count: {value.PerPlayerCardCount}, {_temp}include trump card ",
+        Severity.Info, c => c.SnackbarVariant = Variant.Filled);
+
+        await Task.Delay(1000);
+    }
+
+    public async Task<IDictionary<Player, int>> GetStakes()
+    {
+        var options = new DialogOptions { CloseButton = false };
+
+        var parameters = new DialogParameters<GetStakesDialog> { { sp => sp.Players, Players } };
+
+        var dialogRes = await DialogService.ShowAsync<GetStakesDialog>("Set player stakes", parameters, options);
+
+        var result = await dialogRes.Result;
+
+        if (result is null || result.Canceled) throw new Exception("Could not get stakes");
+
+        var stakes = (IDictionary<Player, int>)result.Data!;
+
+        return stakes;
+    }
+
+    public Task ReportStakes(IDictionary<Player, RoundResult> value)
+    {
+        foreach (var (player, res) in value)
+        {
+            Round.Results[player] = res;
+        }
+
+        OnChange?.Invoke();
+
+        return Task.CompletedTask;
+    }
+
+    public async Task<TurnResult<Player>> PlayTurn(IPlayersApi<Player> value, TurnInfo info)
+    {
+        var options = new DialogOptions { CloseButton = false };
+
+        var parameters = new DialogParameters<SelectPlayerDialog> { { sp => sp.Players, Players } };
+
+        var dialogRes = await DialogService.ShowAsync<SelectPlayerDialog>($"Choose winner. Turn {info.TurnIndex}", parameters, options);
+
+        var result = await dialogRes.Result;
+
+        if (result is null || result.Canceled) throw new Exception("Could not play turn.");
+
+        var player = (Player)result.Data!;
+
+        return new TurnResult<Player>(player);
+    }
+
+    public async void Play()
+    {
+        RoundRunner<Player> runner = new(this, this);
+        RoundResult<Player> res = await runner.RunRound(Round.Round);
+
+        foreach (var (player, result) in res.Results)
+        {
+            Round.Results[player] = result;
+        }
+
+        OnChange?.Invoke();
+    }
+}
+
+<MudButton @onclick=Play>@ButtonText</MudButton>

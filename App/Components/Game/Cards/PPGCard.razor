@@ -1,0 +1,20 @@
+@using PaintedPokerLib.Cards
+
+@code {
+    [Parameter]
+    public required Card Card { get; set; }
+}
+
+<div class="bg-white relative rounded-md flex justify-center items-center" style="width: 200px; height: 300px; min-width: 200px;">
+    <svg width="40" height="40" class="absolute left-2 top-1" viewBox="0 0 40 40">
+        <use href="#card-rank:@((int)Card.Rank)" />
+    </svg>
+
+    <svg width="80" height="80" viewBox="0 0 100 100">
+        <use href="#card-suit:@Card.Suit.ToString().ToLower()" width="80" height="80" />
+    </svg>
+
+    <svg style="transform: rotate(180deg);" width="40" height="40" class="absolute bottom-1 right-2" viewBox="0 0 40 40">
+        <use href="#card-rank:@((int)Card.Rank)" />
+    </svg>
+</div>
