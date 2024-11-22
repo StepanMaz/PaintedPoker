@@ -12,6 +12,8 @@ services:
       - DOTNET_USE_POLLING_FILE_WATCHER=true
     depends_on:
       - mongo
+    networks:
+      - paintedpoker 
 
   mongo:
     image: mongo:6.0
@@ -25,7 +27,13 @@ services:
     volumes:
       - mongo-data:/data/db
       - mongo-config:/data/configdb
+    networks:
+      - paintedpoker 
 
 volumes:
   mongo-data:
   mongo-config:
+  
+networks:
+  paintedpoker:
+    driver: bridge
