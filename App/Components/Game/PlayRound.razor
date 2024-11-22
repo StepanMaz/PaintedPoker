@@ -4,6 +4,7 @@
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ILogger<PlayRound> logger
 
 @implements IPlayersApi<Player>
 @implements ITurnRunner<Player>
@@ -66,7 +67,8 @@
 
         var parameters = new DialogParameters<SelectPlayerDialog> { { sp => sp.Players, Players } };
 
-        var dialogRes = await DialogService.ShowAsync<SelectPlayerDialog>($"Choose winner. Turn {info.TurnIndex}", parameters, options);
+        var dialogRes = await DialogService.ShowAsync<SelectPlayerDialog>($"Choose winner. Turn {info.TurnIndex}", parameters,
+        options);
 
         var result = await dialogRes.Result;
 
@@ -80,14 +82,22 @@
     public async void Play()
     {
         RoundRunner<Player> runner = new(this, this);
-        RoundResult<Player> res = await runner.RunRound(Round.Round);
 
-        foreach (var (player, result) in res.Results)
+        try
         {
-            Round.Results[player] = result;
-        }
+            RoundResult<Player> res = await runner.RunRound(Round.Round);
 
-        OnChange?.Invoke();
+            foreach (var (player, result) in res.Results)
+            {
+                Round.Results[player] = result;
+            }
+
+            OnChange?.Invoke();
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Playing turn failed, {}", e.Message);
+        }
     }
 }
 

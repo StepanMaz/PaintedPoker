@@ -57,7 +57,7 @@ public class PointsCalculator : IResultVisitor<int?>, ICalculator
 
     int? IResultVisitor<int?>.Visit(PartialResult result)
     {
-        return 0;
+        return null;
     }
 }
 

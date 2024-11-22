@@ -28,7 +28,7 @@
             {
                 RoundResult result;
                 var hasRes = round.Results.TryGetValue(player, out result);
-                if (hasRes && result is not null) scores[player] += PointsCalculator.Instance.Calculate(result) ?? 0;
+                if (hasRes && result is not null) scores[player] += result.GetPoints() ?? 0;
             }
         }
 
@@ -66,6 +66,28 @@
             HandleChanges();
         };
     }
+
+    private (int? wins, int? stakes) GetResultsStats(IEnumerable<RoundResult> results)
+    {
+        int? totalWins = null, totalStakes = null;
+        foreach (var (_stakes, _wins) in results.Select(ResultNormalizer.Instance.Normalize))
+        {
+            if (_wins is not null)
+                totalWins = (totalWins ?? 0) + _wins.Value;
+
+            if (_stakes is not null)
+                totalStakes = (totalStakes ?? 0) + _stakes.Value;
+        }
+        return (totalWins, totalStakes);
+    }
+
+    public Color GetStatsColor(int? wins, int? stakes, RoundDef round)
+    {
+        if (stakes is null) return Color.Default;
+        if (wins is not null && wins == round.Round.CardCount && round.Results.Values.All(x => x is not null && x is not
+        PartialResult)) return Color.Success;
+        return Color.Error;
+    }
 }
 
 <div>
@@ -86,6 +108,14 @@
         <RowTemplate>
             <MudTd>
                 @context.Round.Accept(RoundFormatter.Instance)
+
+                @{
+                    var stats = GetResultsStats(context.Results.Values);
+                }
+                <MudChip T="string" Class="mx-4" Color="GetStatsColor(stats.wins, stats.stakes, context)">
+                    @(stats.wins?.ToString() ?? "-") / @(stats.stakes?.ToString() ?? "-")
+                </MudChip>
+
                 <PlayRound OnChange=HandleChanges Round=@context Players=Players />
             </MudTd>
             @foreach (var player in Players)
@@ -96,15 +126,26 @@
                         var hasResult = @context.Results.TryGetValue(player, out result);
                     }
 
-                    <Cell Result=@result Round=@context.Round OnChange="EditRes(context, player)"/>
+                    <Cell Result=@result Round=@context.Round OnChange="EditRes(context, player)" />
+
+                    @if (result.GetPoints() is int points)
+                    {
+                        <MudChip T="string" Variant="Variant.Filled" Color="@(points < 0 ? Color.Error : Color.Success)">
+                            @points
+                        </MudChip>
+                    }
                 </MudTd>
             }
         </RowTemplate>
         <FooterContent>
             <MudTd>Scores:</MudTd>
-            @foreach (var score in GetPlayersScores())
+            @foreach (var (_, score) in GetPlayersScores())
             {
-                <MudTd>@score.Value</MudTd>
+                <MudTd>
+                    <MudChip T="string" Variant="Variant.Filled" Color="@(score < 0 ? Color.Error : Color.Success)">
+                        @score
+                    </MudChip>
+                </MudTd>
             }
         </FooterContent>
     </MudTable>

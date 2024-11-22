@@ -33,7 +33,7 @@
 
 <MudButton @onclick=Edit>
     @if(Result is not null) {
-        @Result.Accept(ResultFormatter.Instance)
+        @Result.Format()
     }
     else {
        <span>/</span> 
