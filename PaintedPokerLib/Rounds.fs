@@ -2,7 +2,8 @@ namespace PaintedPokerLib.Game
 
 module Round =
     [<AbstractClass>]
-    type RoundBase() =
+    type RoundBase(cardCount: int) =
+        member this.CardCount = cardCount
         abstract member Accept: visitor: IRoundVisitor<'T> -> 'T
 
     and IRoundVisitor<'T> =
@@ -14,26 +15,21 @@ module Round =
 
 
     and DefaultRound(cardCount: int) =
-        inherit RoundBase()
-        member this.CardCount = cardCount
+        inherit RoundBase(cardCount)
         override this.Accept(visitor: IRoundVisitor<'T>) : 'T = visitor.Visit(this)
 
     and NoStakesRound(cardCount: int) =
-        inherit RoundBase()
-        member this.CardCount = cardCount
+        inherit RoundBase(cardCount)
         override this.Accept(visitor: IRoundVisitor<'T>) : 'T = visitor.Visit(this)
 
     and WinLosesRound(cardCount: int) =
-        inherit RoundBase()
-        member this.CardCount = cardCount
+        inherit RoundBase(cardCount)
         override this.Accept(visitor: IRoundVisitor<'T>) : 'T = visitor.Visit(this)
 
     and BlindStakesRound(cardCount: int) =
-        inherit RoundBase()
-        member this.CardCount = cardCount
+        inherit RoundBase(cardCount)
         override this.Accept(visitor: IRoundVisitor<'T>) : 'T = visitor.Visit(this)
 
     and NoTrumpCardsRound(cardCount: int) =
-        inherit RoundBase()
-        member this.CardCount = cardCount
+        inherit RoundBase(cardCount)
         override this.Accept(visitor: IRoundVisitor<'T>) : 'T = visitor.Visit(this)
