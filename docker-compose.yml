@@ -6,10 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5245:5000"
-    volumes:
-      - ./App:/app
-    working_dir: /app
+      - "8080:8080"
     environment:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - DOTNET_USE_POLLING_FILE_WATCHER=true
