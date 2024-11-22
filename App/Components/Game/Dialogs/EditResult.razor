@@ -50,7 +50,7 @@
 
     EditConfig IRoundVisitor<EditConfig>.Visit(DefaultRound round)
     {
-        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+        var (stakes, wins) = Result.Normalize();
 
         return new EditConfig
             {
@@ -71,7 +71,7 @@
 
     EditConfig IRoundVisitor<EditConfig>.Visit(WinLosesRound round)
     {
-        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+        var (stakes, wins) = Result.Normalize();
 
         return new EditConfig
             {
@@ -91,7 +91,7 @@
 
     EditConfig IRoundVisitor<EditConfig>.Visit(BlindStakesRound round)
     {
-        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+        var (stakes, wins) = Result.Normalize();
 
         return new EditConfig
             {
@@ -112,7 +112,7 @@
 
     EditConfig IRoundVisitor<EditConfig>.Visit(NoStakesRound round)
     {
-        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+        var (stakes, wins) = Result.Normalize();
 
         return new EditConfig
             {
@@ -132,7 +132,7 @@
 
     EditConfig IRoundVisitor<EditConfig>.Visit(NoTrumpCardsRound round)
     {
-        var (stakes, wins) = ResultNormalizer.Instance.Normalize(Result);
+        var (stakes, wins) = Result.Normalize();
 
         return new EditConfig
             {

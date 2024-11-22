@@ -70,7 +70,7 @@
     private (int? wins, int? stakes) GetResultsStats(IEnumerable<RoundResult> results)
     {
         int? totalWins = null, totalStakes = null;
-        foreach (var (_stakes, _wins) in results.Select(ResultNormalizer.Instance.Normalize))
+        foreach (var (_stakes, _wins) in results.Select(x => x.Normalize()))
         {
             if (_wins is not null)
                 totalWins = (totalWins ?? 0) + _wins.Value;

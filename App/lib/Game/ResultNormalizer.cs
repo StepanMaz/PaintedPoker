@@ -11,8 +11,6 @@ class ResultNormalizer : IResultVisitor<(int?, int?)>
         return result.Accept(this);
     }
 
-    public static readonly ResultNormalizer Instance = new();
-
     (int?, int?) IResultVisitor<(int?, int?)>.Visit(DefaultRoundResult result)
     {
         return (result.Stakes, result.Wins);
@@ -41,5 +39,15 @@ class ResultNormalizer : IResultVisitor<(int?, int?)>
     (int?, int?) IResultVisitor<(int?, int?)>.Visit(PartialResult result)
     {
         return (result.Stakes, null);
+    }
+}
+
+public static class ResultNormalizerExtensions
+{
+    private static ResultNormalizer normalizer = new();
+    public static (int? stakes, int? wins) Normalize(this RoundResult? result)
+    {
+        if (result is null) return (null, null);
+        return result.Accept(normalizer);
     }
 }
